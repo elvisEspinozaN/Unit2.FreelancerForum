@@ -1,4 +1,3 @@
-// freelancer array
 const freelancers = [
   { name: "Alice", occupation: "Writer", startingPrice: 30 },
   { name: "Bob", occupation: "Teacher", startingPrice: 50 },
@@ -6,7 +5,6 @@ const freelancers = [
 ];
 
 const names = ["Maria", "Nushi", "Mohammed", "Jose", "Wei", "Ahmed"];
-
 const occupations = [
   "Home Health Care",
   "Retail Salesperson",
@@ -16,76 +14,92 @@ const occupations = [
   "Programmer",
 ];
 
-// calculate and display the average starting price
-// add new freelancers dynamically every few seconds
-// update the freelancer list and average price in real-time
+// global references
+let tableBody, averagePriceDisplay;
+
+// calculates the average starting price of freelancers
+function averageStartingPrice() {
+  const totalAmount = freelancers.reduce(
+    (acc, curr) => acc + curr.startingPrice,
+    0
+  );
+  return (totalAmount / freelancers.length).toFixed(2);
+}
+
+function addFreelancer() {
+  const newFreelancer = {
+    name: names[Math.floor(Math.random() * names.length)],
+    occupation: occupations[Math.floor(Math.random() * occupations.length)],
+    startingPrice: Math.floor(Math.random() * 80) + 20,
+  };
+
+  freelancers.push(newFreelancer);
+
+  // appending only the new row
+  const tr = document.createElement("tr");
+  [
+    newFreelancer.name,
+    newFreelancer.occupation,
+    `$${newFreelancer.startingPrice}`,
+  ].forEach((e) => {
+    const td = document.createElement("td");
+    td.textContent = e;
+    tr.append(td);
+  });
+
+  tableBody.append(tr);
+
+  // updates average price
+  averagePriceDisplay.textContent = `The average starting price is $${averageStartingPrice()}.`;
+}
+
+// tbody : initial freelancers and replaces with new freelancers
+function freelancerBody() {
+  tableBody.replaceChildren(
+    ...freelancers.map(({ name, occupation, startingPrice }) => {
+      const tr = document.createElement("tr");
+      [name, occupation, `$${startingPrice}`].forEach((text) => {
+        const td = document.createElement("td");
+        td.textContent = text;
+        tr.append(td);
+      });
+      return tr;
+    })
+  );
+}
 
 function init() {
   const root = document.querySelector("#root");
 
-  /* header */
   const h1 = document.createElement("h1");
   h1.textContent = "Freelancer Forum";
-  root.append(h1);
 
-  const p = document.createElement("p");
-  // insert averagePrice function here
-  p.textContent = "The average starting price is $30";
-  root.append(p);
+  averagePriceDisplay = document.createElement("p");
+  averagePriceDisplay.textContent = `The average starting price is $${averageStartingPrice()}.`;
 
   const h2 = document.createElement("h2");
   h2.textContent = "Available Freelancers";
-  root.append(h2);
 
-  /** example
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-   */
-
+  // table
   const table = document.createElement("table");
-
-  /* table header */
   const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
+  tableBody = document.createElement("tbody");
 
-  ["Name", "Occupation", "Starting Price"].forEach((headers) => {
+  // theader
+  const headerRow = document.createElement("tr");
+  ["Name", "Occupation", "Starting Price"].forEach((header) => {
     const th = document.createElement("th");
-    th.textContent = headers;
+    th.textContent = header;
     headerRow.append(th);
   });
 
+  // tbody
+  freelancerBody();
+
   thead.append(headerRow);
-  table.append(thead);
-
-  /* table body */
-  const tbody = document.createElement("tbody");
-
-  freelancers.forEach((freelancer) => {
-    const dataRow = document.createElement("tr");
-
-    for (const key in freelancer) {
-      const td = document.createElement("td");
-      td.textContent = freelancer[key];
-      dataRow.append(td);
-    }
-    tbody.append(dataRow);
-  });
-  table.append(tbody);
-
-  root.append(table);
+  table.append(thead, tableBody);
+  root.append(h1, averagePriceDisplay, h2, table);
 }
 
+setInterval(addFreelancer, 3000);
 init();
